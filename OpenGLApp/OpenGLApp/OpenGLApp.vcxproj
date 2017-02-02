@@ -69,12 +69,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>D:\git\learnOpenGL\OpenGLApp\Library\Debug;$(IncludePath);D:\git\learnOpenGL\OpenGLApp\Include</IncludePath>
-    <LibraryPath>D:\git\learnOpenGL\OpenGLApp\Library\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Include;$(SolutionDir)Include;$(IncludePath);D:\git\learnOpenGL\OpenGLApp\Include</IncludePath>
+    <LibraryPath>$(SolutionDir)Lib\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>D:\git\learnOpenGL\OpenGLApp\Library\Release;$(IncludePath);D:\git\learnOpenGL\OpenGLApp\Include</IncludePath>
-    <LibraryPath>D:\git\learnOpenGL\OpenGLApp\Library\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Include;D:\git\learnOpenGL\OpenGLApp\Library\Release;$(IncludePath);D:\git\learnOpenGL\OpenGLApp\Include</IncludePath>
+    <LibraryPath>$(SolutionDir)Lib\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
