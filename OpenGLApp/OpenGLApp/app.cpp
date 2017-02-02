@@ -2,29 +2,16 @@
 
 #define GLEW_STATIC
 #include <GL\glew.h>
-
 #include <GLFW\glfw3.h>
-
+#include "Shader.h"
+#include <SOIL\SOIL.h>
+#include <glm\glm.hpp>
+#include <glm\gtc\matrix_transform.hpp>
+#include <glm\gtc\type_ptr.hpp>
 
 void key_callback(GLFWwindow * window, int key, int scancode, int action, int mode);
 
 const GLuint WIDTH = 800, HEIGHT = 600;
-
-//Shaders
-const GLchar * vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 position;\n"
-    "void main()\n"
-    "{\n"
-    "gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
-	"}\0";
-
-const GLchar* fragmentShaderSource = "#version 330 core\n"
-"out vec4 color;\n"
-"void main()\n"
-"{\n"
-"color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-"}\n\0";
-
 
 
 
@@ -32,6 +19,7 @@ int main()
 {
 	std::cout << "Starting GLFW context,OpenGL 3.3" << std::endl;
 
+#pragma region  gl Init window
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -50,103 +38,73 @@ int main()
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
-
-
-	GLint success;
-	GLchar infoLog[512];
-
-#pragma region Compile VertexShader
-	//compile vertex shader
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	glCompileShader(vertexShader);
-
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-	else
-	{
-		std::cout << "SHADER::VERTEX::COMPILE_SUCCESS" << std::endl;
-	}
 #pragma endregion
 
-#pragma region Compile FragmentShader
+	
 
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-	glCompileShader(fragmentShader);
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-	if (!success)
-	{
-		glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-		std::cout<< "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-	}
-	else
-	{
-		std::cout << "SHADER::FRAGMENT::COMPILATION::SUCCEED" << std::endl;
-	}
-#pragma endregion
+	Shader defaultShader("F://git/learnOpenGL/OpenGLApp/Debug/Shader/default.vs","F://git/learnOpenGL/OpenGLApp/Debug/Shader/default.fs");
 
-#pragma region Link shader
-	GLuint shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	glLinkProgram(shaderProgram);
+#pragma region loadTexture
+	
+	GLuint texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D,texture);
 
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-	if (!success)
-	{
-		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-		std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-	}
-	else
-	{
-		std::cout << "SHADER::PROGRAME::LINK::DONE!" << std::endl;
-	}
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+
+	//set wrapping/filtering option
+
+	int texwidth, texheight;
+	unsigned char* image = SOIL_load_image("F://git/learnOpenGL/OpenGLApp/Debug/texture.png", &texwidth, &texheight, 0, SOIL_LOAD_RGB);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texwidth, texheight, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	SOIL_free_image_data(image);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 #pragma endregion
 
 #pragma region Draw Data
 
 	GLfloat vertices[] = {
-		0.5f,  0.5f, 0.0f,  // Top Right
-		0.5f, -0.5f, 0.0f,  // Bottom Right
-		-0.5f, -0.5f, 0.0f,  // Bottom Left
-		-0.5f,  0.5f, 0.0f   // Top Left 
-	};
-	GLuint indices[] = {  // Note that we start from 0!
-		0, 1, 3,  // First Triangle
-		1, 2, 3   // Second Triangle
+		0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // Top Right
+		0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // Bottom Right
+		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // Bottom Left
+		-0.5f, 0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f // Top Left
 	};
 
-	GLuint VBO, VAO, EBO;
-	glGenVertexArrays(1,&VAO);
+	GLuint VBO, VAO;
+	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
 
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GL_FLOAT), (GLvoid*)0);
+	//pos
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//color
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3* sizeof(GLfloat)));
+	glEnableVertexAttribArray(1);
+
+	//uv
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid *)(6 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(2);
+
 	glBindVertexArray(0);
+
 #pragma endregion
+
+
 
 
 	while (!glfwWindowShouldClose(window))
 	{
+
+
 		glfwPollEvents();
 
 		//render command
@@ -154,10 +112,21 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		//draw
-		glUseProgram(shaderProgram);
+		defaultShader.Use();
+
+		glm::mat4 trans;
+		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+		trans = glm::rotate(trans, (GLfloat)glfwGetTime() * 1.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glUniform1i(glGetUniformLocation(defaultShader.Program, "ourTexture"), 0);
+
+		GLuint transformLoc = glGetUniformLocation(defaultShader.Program, "transform");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
 		glBindVertexArray(VAO);
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
@@ -165,7 +134,6 @@ int main()
 
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
 
 	glfwTerminate();
 	return 0;
