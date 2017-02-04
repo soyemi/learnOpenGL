@@ -9,9 +9,29 @@
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
 
+using namespace glm;
+
 void key_callback(GLFWwindow * window, int key, int scancode, int action, int mode);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+
+void do_movement();
 
 const GLuint WIDTH = 800, HEIGHT = 600;
+
+vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f);
+vec3 cameraFront = vec3(0.0f, 0.0f, -1.0f);
+vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
+bool keys[1024];
+
+GLfloat deltaTime = 0.0f;
+GLfloat lastFrame = 0.0f;
+
+GLfloat lastX = 400, lastY = 300;
+GLfloat cameraYaw = 230.0f, cameraPitch = 0.0f;
+
+GLfloat fov = 45.0f;
+
 
 
 
@@ -30,6 +50,8 @@ int main()
 	glfwMakeContextCurrent(window);
 
 	glfwSetKeyCallback(window, key_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
 
 	//init glew
 	glewExperimental = GL_TRUE;
@@ -153,20 +175,28 @@ int main()
 	glBindVertexArray(0);
 
 #pragma endregion
-
 	
 
 	glm::mat4 view;
 	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
-	glm::mat4 projection;
-	projection = glm::perspective(45.0f,1.33333f, 0.1f, 100.0f);
+
 
 
 	while (!glfwWindowShouldClose(window))
 	{
 
 		glfwPollEvents();
+
+		GLfloat currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
+
+		do_movement();
+
+		glm::mat4 projection;
+		projection = glm::perspective(fov, 1.33333f, 0.1f, 100.0f);
 
 		//render command
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -187,10 +217,10 @@ int main()
 		GLint viewLoc = glGetUniformLocation(defaultShader.Program, "view");
 		GLint projectionLoc = glGetUniformLocation(defaultShader.Program, "projection");
 		
+		view = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
 
 		glBindVertexArray(VAO);
 		for (GLuint i = 0; i < 10; i++)
@@ -219,4 +249,60 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, GL_TRUE);
+
+	if (action == GLFW_PRESS)
+		keys[key] = true;
+	else if (action == GLFW_RELEASE)
+		keys[key] = false;
+}
+
+void mouse_callback(GLFWwindow *window, double xpos, double ypos)
+{
+	GLfloat xoffset = xpos - lastX;
+	GLfloat yoffset = ypos - lastY;
+	lastX = xpos;
+	lastY = ypos;
+
+	GLfloat sensitivity = 0.5f;
+	xoffset *= sensitivity;
+	yoffset *= sensitivity;
+
+	cameraYaw += xoffset;
+	cameraPitch -= yoffset;
+	cameraPitch = cameraPitch > 89.0f ? 89.0f : cameraPitch;
+	cameraPitch = cameraPitch < -89.0f ? -89.0f : cameraPitch;
+
+	vec3 front;
+	front.x = cos(radians(cameraYaw)) * cos(radians(cameraPitch));
+	front.y = sin(radians(cameraPitch));
+	front.z = sin(radians(cameraYaw)) * cos(radians(cameraPitch));
+	front = normalize(front);
+
+	cameraFront = normalize(front);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	if (fov >= 1.0f && fov <= 45.0f)
+		fov -= 0.1f;
+	if (fov <= 1.0f)
+		fov = 1.0f;
+	if (fov >= 45.0f)
+		fov = 45.0f;
+
+	cout << yoffset << endl;
+}
+
+void do_movement()
+{
+	GLfloat cameraSpeed = 5.0f * deltaTime;
+
+	if (keys[GLFW_KEY_W])
+		cameraPos += cameraSpeed * cameraFront;
+	if (keys[GLFW_KEY_S])
+		cameraPos -= cameraSpeed* cameraFront;
+	if (keys[GLFW_KEY_A])
+		cameraPos -= normalize(cross(cameraFront, cameraUp))* cameraSpeed;
+	if (keys[GLFW_KEY_D])
+		cameraPos += normalize(cross(cameraFront, cameraUp))* cameraSpeed;
 }
