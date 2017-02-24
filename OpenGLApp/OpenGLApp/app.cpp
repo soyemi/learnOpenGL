@@ -1,5 +1,4 @@
 #include <iostream>
-
 #define GLEW_STATIC
 #include <GL\glew.h>
 #include <GLFW\glfw3.h>
@@ -8,6 +7,7 @@
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
+#include "Camera.h"
 
 using namespace glm;
 
@@ -19,20 +19,14 @@ void do_movement();
 
 const GLuint WIDTH = 800, HEIGHT = 600;
 
-vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f);
-vec3 cameraFront = vec3(0.0f, 0.0f, -1.0f);
-vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
 bool keys[1024];
 
 GLfloat deltaTime = 0.0f;
 GLfloat lastFrame = 0.0f;
 
 GLfloat lastX = 400, lastY = 300;
-GLfloat cameraYaw = 230.0f, cameraPitch = 0.0f;
 
-GLfloat fov = 45.0f;
-
-
+Camera camera;
 
 
 int main()
@@ -64,7 +58,7 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 #pragma endregion
 
-	
+	camera = Camera();
 
 	Shader defaultShader("F://git/learnOpenGL/OpenGLApp/Debug/Shader/default.vs","F://git/learnOpenGL/OpenGLApp/Debug/Shader/default.fs");
 
@@ -181,22 +175,18 @@ int main()
 	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
 
-
-
 	while (!glfwWindowShouldClose(window))
 	{
-
 		glfwPollEvents();
 
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-
 		do_movement();
 
 		glm::mat4 projection;
-		projection = glm::perspective(fov, 1.33333f, 0.1f, 100.0f);
+		projection = glm::perspective(camera.FOV, 1.33333f, 0.1f, 100.0f);
 
 		//render command
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -217,7 +207,8 @@ int main()
 		GLint viewLoc = glGetUniformLocation(defaultShader.Program, "view");
 		GLint projectionLoc = glGetUniformLocation(defaultShader.Program, "projection");
 		
-		view = lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+		view = lookAt(camera.Position, camera.Position + camera.Front, camera.Up);
 
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
@@ -255,7 +246,6 @@ void key_callback(GLFWwindow * window, int key, int scancode, int action, int mo
 	else if (action == GLFW_RELEASE)
 		keys[key] = false;
 }
-
 void mouse_callback(GLFWwindow *window, double xpos, double ypos)
 {
 	GLfloat xoffset = xpos - lastX;
@@ -263,46 +253,22 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos)
 	lastX = xpos;
 	lastY = ypos;
 
-	GLfloat sensitivity = 0.5f;
-	xoffset *= sensitivity;
-	yoffset *= sensitivity;
-
-	cameraYaw += xoffset;
-	cameraPitch -= yoffset;
-	cameraPitch = cameraPitch > 89.0f ? 89.0f : cameraPitch;
-	cameraPitch = cameraPitch < -89.0f ? -89.0f : cameraPitch;
-
-	vec3 front;
-	front.x = cos(radians(cameraYaw)) * cos(radians(cameraPitch));
-	front.y = sin(radians(cameraPitch));
-	front.z = sin(radians(cameraYaw)) * cos(radians(cameraPitch));
-	front = normalize(front);
-
-	cameraFront = normalize(front);
+	camera.ProcessMouseMovement(xoffset, yoffset);
 }
-
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	if (fov >= 1.0f && fov <= 45.0f)
-		fov -= 0.1f;
-	if (fov <= 1.0f)
-		fov = 1.0f;
-	if (fov >= 45.0f)
-		fov = 45.0f;
-
-	cout << yoffset << endl;
+	camera.ProcessScroll(yoffset);
 }
 
 void do_movement()
 {
 	GLfloat cameraSpeed = 5.0f * deltaTime;
-
 	if (keys[GLFW_KEY_W])
-		cameraPos += cameraSpeed * cameraFront;
+		camera.ProcessKeyboard(FORWARD, deltaTime);
 	if (keys[GLFW_KEY_S])
-		cameraPos -= cameraSpeed* cameraFront;
+		camera.ProcessKeyboard(BACKWARD, deltaTime);
 	if (keys[GLFW_KEY_A])
-		cameraPos -= normalize(cross(cameraFront, cameraUp))* cameraSpeed;
+		camera.ProcessKeyboard(LEFT, deltaTime);
 	if (keys[GLFW_KEY_D])
-		cameraPos += normalize(cross(cameraFront, cameraUp))* cameraSpeed;
+		camera.ProcessKeyboard(RIGHT, deltaTime);
 }
