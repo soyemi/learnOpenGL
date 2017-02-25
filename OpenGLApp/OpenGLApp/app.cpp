@@ -8,6 +8,8 @@
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
 #include "Camera.h"
+#include "testcpp.h"
+#include "Texture.h"
 
 using namespace glm;
 
@@ -27,6 +29,7 @@ GLfloat lastFrame = 0.0f;
 GLfloat lastX = 400, lastY = 300;
 
 Camera camera;
+
 
 
 int main()
@@ -60,31 +63,15 @@ int main()
 
 	camera = Camera();
 
-	Shader defaultShader("F://git/learnOpenGL/OpenGLApp/Debug/Shader/default.vs","F://git/learnOpenGL/OpenGLApp/Debug/Shader/default.fs");
+	string sp = "F://git/learnOpenGL/OpenGLApp/Debug/Shader/";
+	Shader::SHADER_PATH = sp;
 
-#pragma region loadTexture
-	
-	GLuint texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D,texture);
 
-	//set wrapping/filtering option
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	Shader defaultShader("default.vs","default.fs");
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	Shader testShader("color.glsl");
 
-	int texwidth, texheight;
-	unsigned char* image = SOIL_load_image("F://git/learnOpenGL/OpenGLApp/Debug/texture.png", &texwidth, &texheight, 0, SOIL_LOAD_RGB);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texwidth, texheight, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-	glGenerateMipmap(GL_TEXTURE_2D);
-
-	SOIL_free_image_data(image);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-#pragma endregion
+	Texture tex1("F://git/learnOpenGL/OpenGLApp/Debug/texture.png");
 
 #pragma region Draw Data
 
@@ -170,10 +157,13 @@ int main()
 
 #pragma endregion
 	
+	glBindTexture(GL_TEXTURE_2D, tex1.GetTexture());
 
 	glm::mat4 view;
 	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
+
+	testcpp cpptest;
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -199,7 +189,7 @@ int main()
 		//model = glm::rotate(model, (GLfloat)glfwGetTime()*1.0f, glm::vec3(0.5f, 1.0f, 0.0f));
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		
 		glUniform1i(glGetUniformLocation(defaultShader.Program, "ourTexture"), 0);
 
 		//set matrix
@@ -207,8 +197,8 @@ int main()
 		GLint viewLoc = glGetUniformLocation(defaultShader.Program, "view");
 		GLint projectionLoc = glGetUniformLocation(defaultShader.Program, "projection");
 		
-
-		view = lookAt(camera.Position, camera.Position + camera.Front, camera.Up);
+		
+		view = camera.GetViewMatrix();
 
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
