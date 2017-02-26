@@ -16,7 +16,7 @@ enum Camera_Movement
 const GLfloat YAW = -90.0f;
 const GLfloat PITCH = 0.0f;
 const GLfloat SPEED = 3.0F;
-const GLfloat SENSITIVTY = 0.25F;
+const GLfloat SENSITIVTY = 0.3F;
 const GLfloat ZOOM = 45.0f;
 
 class Camera
@@ -52,6 +52,8 @@ public:
 	~Camera();
 
 	glm::mat4 GetViewMatrix();
+	glm::mat4 GetPerspectiveMatrix();
+
 	void ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime);
 	void ProcessMouseMovement(GLfloat xoffset, GLfloat yoofset, GLboolean constrainPitch = true);
 	void ProcessScroll(GLfloat yoffset);

@@ -1,3 +1,4 @@
+#pragma once
 #include "Shader.h"
 
 string Shader::SHADER_PATH;
@@ -76,6 +77,8 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
 	glDeleteShader(vertex);
 	glDeleteShader(fragment);
 
+
+	cout << "SHADER::COMPILE::DONE!" << endl;
 }
 
 Shader::Shader(string sp)
@@ -161,6 +164,7 @@ Shader::Shader(string sp)
 void Shader::Use()
 {
 	glUseProgram(this->Program);
+	cout << "shader use" << endl;
 }
 
 Shader::~Shader()

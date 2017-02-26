@@ -137,17 +137,24 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp" />
+    <ClCompile Include="AppBase.cpp" />
+    <ClCompile Include="AppBoxRender.cpp" />
     <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="MeshCube.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MeshBase.cpp" />
+    <ClCompile Include="RenderObject.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AppBase.h" />
+    <ClInclude Include="AppBoxRender.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="IMesh.h" />
+    <ClInclude Include="Include.h" />
+    <ClInclude Include="MeshBase.h" />
+    <ClInclude Include="RenderObject.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Shader.h" />
-    <ClInclude Include="testcpp.h" />
     <ClInclude Include="Texture.h" />
   </ItemGroup>
   <ItemGroup>

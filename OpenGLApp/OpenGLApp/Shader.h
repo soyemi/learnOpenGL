@@ -1,18 +1,12 @@
 #pragma once
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
+#include "AppBase.h"
 
 using namespace std;
-
-#include <GL\glew.h>
 
 class Shader
 {
 	
 public:
-	
 
 	GLuint Program;
 	Shader(const char* vertexPath, const char* fragmentPath);

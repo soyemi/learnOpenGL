@@ -16,6 +16,9 @@
     <Filter Include="源文件\Mesh">
       <UniqueIdentifier>{dba53e03-967c-4132-b8ba-45d166d794e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="源文件\Samples">
+      <UniqueIdentifier>{a618e4cf-ef1a-4c97-99a7-30743b82a7eb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="app.cpp">
@@ -27,11 +30,23 @@
     <ClCompile Include="Camera.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="MeshCube.cpp">
-      <Filter>源文件\Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="Texture.cpp">
       <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AppBase.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshBase.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RenderObject.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AppBoxRender.cpp">
+      <Filter>源文件\Samples</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -41,16 +56,25 @@
     <ClInclude Include="Camera.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="IMesh.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="testcpp.h">
+    <ClInclude Include="Texture.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Texture.h">
+    <ClInclude Include="Include.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AppBase.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshBase.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RenderObject.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="AppBoxRender.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,6 +9,11 @@ glm::mat4 Camera::GetViewMatrix()
 	return glm::lookAt(this->Position, this->Position + this->Front, this->WorldUp);
 }
 
+glm::mat4 Camera::GetPerspectiveMatrix()
+{
+	return glm::perspective(FOV, 1.33333f, 0.1f, 100.0f);
+}
+
 void Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime)
 {
 	GLfloat velocity = this->MovementSpeed * deltaTime;
